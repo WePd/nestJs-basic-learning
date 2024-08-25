@@ -7,9 +7,12 @@ import {
   Patch,
   Post,
   Query,
+  ParseIntPipe,
+  ValidationPipe,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
-import { UserType } from './user.interface';
+import { CreateUserDto } from './dto/createUser-dto';
+import { UpdateUserDto } from './dto/updataUser-dto';
 
 @Controller('users')
 export class UsersController {
@@ -26,27 +29,31 @@ export class UsersController {
     return this.getAll();
   }
 
+  // 这里可以使用pipe（管道）的概念, 利用内置的方法
   // get /users/:id
   @Get(':id')
-  getOne(@Param('id') id: string) {
-    return this.usersService.getOne(+id);
+  getOne(@Param('id', ParseIntPipe) id: number) {
+    return this.usersService.getOne(id);
   }
 
   // post /users
   @Post()
-  CreateUser(@Body() users: UserType) {
+  CreateUser(@Body(ValidationPipe) users: CreateUserDto) {
     return this.usersService.createUser(users);
   }
 
   // patch /users/:id
   @Patch(':id')
-  update(@Param('id') id: string, @Body() userUpdate: Partial<UserType>) {
-    return this.usersService.update(+id, userUpdate);
+  update(
+    @Param('id', ParseIntPipe) id: number,
+    @Body(ValidationPipe) userUpdate: UpdateUserDto,
+  ) {
+    return this.usersService.update(id, userUpdate);
   }
 
   // delete /users/:id
   @Delete(':id')
-  deleteUser(@Param('id') id: string) {
-    return this.usersService.deleteUser(+id);
+  deleteUser(@Param('id', ParseIntPipe) id: number) {
+    return this.usersService.deleteUser(id);
   }
 }
